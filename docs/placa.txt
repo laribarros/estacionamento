@@ -1,0 +1,23 @@
+se é placa nova:
+	- registra
+	- abre estadia comum
+
+senão:
+	se tem estadia aberta: 
+	- fecha estadia
+
+	senão:
+		se é mensalista:
+			se tem vaga disponível:
+			- abre estadia de mensalista
+
+			se não tem vaga disponível, é placa padrão e tem placa adicional com estadia de mensalista aberta:
+			- fecha estadia de mensalista de placa adicional
+			- abre estadia comum para placa adicional 
+			- abre estadia de mensalista da placa padrão
+
+			senão:
+			- abre estadia comum
+
+		senão:
+		- abre estadia comum
