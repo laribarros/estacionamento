@@ -178,8 +178,8 @@ $menumarcado = 2;
                         "</div>"+
                         "<div class='col-lg-3 col-4'>"+
                             "<select name='padrao' id='padrao' class='form-control'>"+
-                                "<option value='1'>padrão</option>"+
-                                "<option value='0'>adicional</option>"+
+                                "<option value='true'>padrão</option>"+
+                                "<option value='false'>adicional</option>"+
                             "</select>"+
                         "</div>"+
 
@@ -192,18 +192,18 @@ $menumarcado = 2;
                 for(var p in dados.placas) {
                     padrao="ADICIONAL";
 
-                    if(dados.Placas[p].PlacaPrioritaria=='true') {
+                    if(dados.placas[p].prioritaria=='true') {
                         padrao="PADRÃO";
                     }
 
                     html += "<div class='row'>"+
-                        "<div class='col-lg-4 col-4'><div class='placa'>"+dados.Placas[p].Id+"</div></div>"+
+                        "<div class='col-lg-4 col-4'><div class='placa'>"+dados.placas[p].placa+"</div></div>"+
                         "<div class='col-lg-3 col-4'><div class='placa'>"+padrao+"</div></div>"+
 
-                        "<div class='input-group-append excluir col-lg-1 col-2' onclick=\"alteraPlaca(\'"+dados.Placas[p].Id+"\')\" title='Editar'>"+
+                        "<div class='input-group-append excluir col-lg-1 col-2' onclick=\"alteraPlaca(\'"+dados.placas[p].placa+"\', '"+dados.placas[p].prioritaria+"\')\" title='Editar'>"+
                             "<span class='input-group-text' id='basic-addon2'><i class='bi bi-pencil-square'></i></span>"+
                         "</div>"+
-                        "<div class='input-group-append excluir col-lg-1 col-2' onclick=\"excluiPlaca(\'"+dados.Placas[p].Id+"\')\" title='Excluir'>"+
+                        "<div class='input-group-append excluir col-lg-1 col-2' onclick=\"excluiPlaca(\'"+dados.placas[p].placa+"\')\" title='Excluir'>"+
                             "<span class='input-group-text' id='basic-addon2'><i class='bi bi-trash'></i></span>"+
                         "</div>"+
                     "</div>";
@@ -226,17 +226,23 @@ $menumarcado = 2;
                     $("#form select").attr("disabled", false); 
                     $('#salvar').html("Salvar");
                     $('#salvar').removeClass("desabilitado");
+
+                    $("#tipo").attr("disabled", true); 
+                    $("#cpf").attr("disabled", true); 
                 }
             } else if($('#salvar').html()=="Salvar") {
                 //valida dados
                 if($('#form')[0].checkValidity()) {
                     acao = "criar";
-                    if($("#id").val()!=0)
+                    meth="POST";
+                    if($("#id").val()!=0) {
                         acao = "atualizar";
+                        meth="PUT";
+                    }
 
                     $.ajax({   
                       url: '<?=API_URL?>Proprietario/'+acao,  
-                      method: "POST",
+                      method: meth,
                       headers: {          
                         "Content-Type": "application/json"   
                       }, 
@@ -277,7 +283,25 @@ $menumarcado = 2;
                 alert('Placa inválida');
             } else {
                 if($("#alterarplaca").val()=="sim") {
-                    
+                    $.ajax({   
+                      url: '<?=API_URL?>Placa/atualizar',  
+                      method: "PUT",
+                      headers: {          
+                        "Content-Type": "application/json"   
+                      }, 
+                      "data": JSON.stringify({
+                        "placaVeiculo": $("#placa").val(),
+                        "descricaoVeiculo": "",
+                        "placaPrioritaria": true,
+                        "cpfCnpjProprietario": $("#cpf").val()
+                      }), 
+                      success: function(result) { 
+                        alert(result.message);
+                        if(result.status==200) {
+                          buscaCliente($("#cpf").val());
+                        }
+                      }
+                    });
                 } else {
                     $.ajax({   
                       url: '<?=API_URL?>Proprietario/criarPlacaProprietario',  
@@ -299,18 +323,28 @@ $menumarcado = 2;
                     });
                 }
             }
+        }
 
+        function alteraPlaca(placa, padrao){
+            $("#placa").val(placa);
+            $("#padrao").val(padrao);
+            $("#alterarplaca").val("sim");
+
+            $("#placa").attr("readonly", true); 
         }
 
         function excluiPlaca(id){
             if(confirm("Deseja realmente excluir essa placa?")) {
-                $.post("<?=API_URL?>ExcluirPlaca", { placa: id })
-                  .done(function(data) {
-                    alert(data);
-
-                    buscaCliente($("#id").val()); 
-                    busca("atualiza");
-                    
+                $.ajax({   
+                  url: '<?=API_URL?>Placa/excluir/'+id,  
+                  method: 'DELETE', 
+                  success: function(result) { 
+                    alert(result.message);
+                    if(result.status==200) {
+                      buscaCliente($("#cpf").val());
+                      busca();
+                    }
+                  }
                 });
             }
         }

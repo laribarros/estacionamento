@@ -56,17 +56,17 @@ $menumarcado = 4;
     <script>
         $.ajax({   
             url: '<?=API_URL?>Estadia/buscar',  
-            method: "POST", 
+            method: "GET", 
             headers: {          
                 "Content-Type": "application/json"   
             }, 
             "data": JSON.stringify({
-                "cnpjEstacionamento": '<?=CNPJ?>',
-                "placaVeiculo": '',
-                "apenasEmAberto": true
+                "CNPJEstacionamento": '<?=CNPJ?>',
+                "PlacaVeiculo": '',
+                "ApenasEmAberto": true
             }), 
             success: function(result) { 
-                console.log(result);
+                console.log(result.data);
             }
         });
 

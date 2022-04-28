@@ -253,7 +253,7 @@ $menumarcado = 2;
                         "</div>"+
 
                         "<div class='col-lg-2 col-3'>"+
-                            "<button onclick='salvarPlaca()' class='add'>Adicionar</button>"+
+                            "<button onclick='salvarPlaca()' class='add'>Salvar</button>"+
                         "</div>"+
                     "</div><br>";
                 }
@@ -269,7 +269,7 @@ $menumarcado = 2;
                         "<div class='col-lg-4 col-4'><div class='placa'>"+dados.placas[p].placa+"</div></div>"+
                         "<div class='col-lg-3 col-4'><div class='placa'>"+padrao+"</div></div>"+
 
-                        "<div class='input-group-append excluir col-lg-1 col-2' onclick=\"alteraPlaca(\'"+dados.placas[p].placa+"\')\" title='Editar'>"+
+                        "<div class='input-group-append excluir col-lg-1 col-2' onclick=\"alteraPlaca(\'"+dados.placas[p].placa+"\', '"+dados.placas[p].prioritaria+"\')\" title='Editar'>"+
                             "<span class='input-group-text' id='basic-addon2'><i class='bi bi-pencil-square'></i></span>"+
                         "</div>"+
                         "<div class='input-group-append excluir col-lg-1 col-2' onclick=\"excluiPlaca(\'"+dados.placas[p].placa+"\')\" title='Excluir'>"+
@@ -300,19 +300,12 @@ $menumarcado = 2;
             busca("atualiza");
         });
 
-        function alteraPlaca(placa){
-            //var dados = JSON.parse('{"Id": "LOU1234", "PlacaPrioritaria": "1"}');
+        function alteraPlaca(placa, padrao){
+            $("#placa").val(placa);
+            $("#padrao").val(padrao);
+            $("#alterarplaca").val("sim");
 
-            $.post("<?=API_URL?>BuscarPlacaPorPlaca", {Placa: placa })
-              .done(function(data) {
-                //var dados = JSON.parse(data);
-                var dados = data;
-
-                $("#placa").val(dados.Id);
-                $("#padrao").val(dados.PlacaPrioritaria);
-                $("#alterarplaca").val("sim");
-                
-            });
+            $("#placa").attr("readonly", true); 
         }
 
         //add placa
@@ -321,7 +314,25 @@ $menumarcado = 2;
                 alert('Placa inválida');
             } else {
                 if($("#alterarplaca").val()=="sim") {
-                    
+                    $.ajax({   
+                      url: '<?=API_URL?>Placa/atualizar',  
+                      method: "PUT",
+                      headers: {          
+                        "Content-Type": "application/json"   
+                      }, 
+                      "data": JSON.stringify({
+                        "placaVeiculo": $("#placa").val(),
+                        "descricaoVeiculo": "",
+                        "placaPrioritaria": true,
+                        "cpfCnpjProprietario": $("#cpf").val()
+                      }), 
+                      success: function(result) { 
+                        alert(result.message);
+                        if(result.status==200) {
+                          buscaCliente($("#cpf").val());
+                        }
+                      }
+                    });
                 } else {
                     $.ajax({   
                       url: '<?=API_URL?>Proprietario/criarPlacaProprietario',  
@@ -347,13 +358,16 @@ $menumarcado = 2;
 
         function excluiPlaca(id){
             if(confirm("Deseja realmente excluir essa placa?")) {
-                $.post("<?=API_URL?>ExcluirPlaca", { placa: id })
-                  .done(function(data) {
-                    alert(data);
-
-                    buscaCliente($("#id").val()); 
-                    busca("atualiza");
-                    
+                $.ajax({   
+                  url: '<?=API_URL?>Placa/excluir/'+id,  
+                  method: 'DELETE', 
+                  success: function(result) { 
+                    alert(result.message);
+                    if(result.status==200) {
+                      buscaCliente($("#cpf").val());
+                      busca();
+                    }
+                  }
                 });
             }
         }
