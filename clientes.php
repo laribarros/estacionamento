@@ -261,7 +261,7 @@ $menumarcado = 2;
                 for(var p in dados.placas) {
                     padrao="ADICIONAL";
 
-                    if(dados.placas[p].prioritaria=='true') {
+                    if(dados.placas[p].prioritaria==true) {
                         padrao="PADRÃO";
                     }
 
@@ -314,18 +314,25 @@ $menumarcado = 2;
                 alert('Placa inválida');
             } else {
                 if($("#alterarplaca").val()=="sim") {
+                    if($("#padrao").val()=='true') {
+                        var data = JSON.stringify({
+                        "placaVeiculo": $("#placa").val(),
+                        "placaPrioritaria": true
+                      });
+                    } else {
+                        var data = JSON.stringify({
+                        "placaVeiculo": $("#placa").val(),
+                        "placaPrioritaria": false
+                      });
+                    }
+
                     $.ajax({   
                       url: '<?=API_URL?>Placa/atualizar',  
                       method: "PUT",
                       headers: {          
                         "Content-Type": "application/json"   
                       }, 
-                      "data": JSON.stringify({
-                        "placaVeiculo": $("#placa").val(),
-                        "descricaoVeiculo": "",
-                        "placaPrioritaria": true,
-                        "cpfCnpjProprietario": $("#cpf").val()
-                      }), 
+                      "data": data, 
                       success: function(result) { 
                         alert(result.message);
                         if(result.status==200) {
@@ -342,13 +349,34 @@ $menumarcado = 2;
                       }, 
                       "data": JSON.stringify({
                         "CpfCnpj": $("#cpf").val(),
-                        "placa": $("#placa").val(),
-                        "padrao": $("#padrao").val()
+                        "placa": $("#placa").val()
                       }), 
                       success: function(result) { 
-                        alert(result.message);
                         if(result.status==200) {
-                          buscaCliente($("#cpf").val());
+                            if($("#padrao").val()=='true') {
+                                //tem que mandar padrão no alterar pq na inserção não funciona
+                                $.ajax({   
+                                  url: '<?=API_URL?>Placa/atualizar',  
+                                  method: "PUT",
+                                  headers: {          
+                                    "Content-Type": "application/json"   
+                                  }, 
+                                  "data": JSON.stringify({
+                                    "placaVeiculo": $("#placa").val(),
+                                    "descricaoVeiculo": "",
+                                    "placaPrioritaria": true
+                                  }), 
+                                  success: function(result) { 
+                                    alert("Placa adicionada");
+                                    if(result.status==200) {
+                                      buscaCliente($("#cpf").val());
+                                    }
+                                  }
+                                });
+                            } else {
+                                alert(result.message);
+                                buscaCliente($("#cpf").val());
+                            }
                         }
                       }
                     });
