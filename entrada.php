@@ -45,6 +45,8 @@ $menumarcado = 4;
                     <div class="fundocinza">
                         <h1>Estadias Abertas</h1>
                     </div>
+
+                    <div id="estadias"></div>
                 </div>
 
                 
@@ -54,19 +56,28 @@ $menumarcado = 4;
     </body>
 
     <script>
+        $("#estadias").html("<br><img src='<?=SITE_URL?>imgs/carregando.gif' class='carregando' />");
+
         $.ajax({   
             url: '<?=API_URL?>Estadia/buscar',  
-            method: "GET", 
-            headers: {          
-                "Content-Type": "application/json"   
-            }, 
-            "data": JSON.stringify({
-                "CNPJEstacionamento": '<?=CNPJ?>',
-                "PlacaVeiculo": '',
-                "ApenasEmAberto": true
-            }), 
-            success: function(result) { 
-                console.log(result.data);
+            method: "GET",  
+            "data": "CNPJEstacionamento=<?=CNPJ?>&ApenasEmAberto=true",
+            success: function(result) {
+                var html="<br><div class='row'>";
+                var dados = result.data; 
+
+                for(var e in dados) {
+                    //console.log(dados[e]);
+                    html += "<div class='col-lg-3 col-12'><div class='fundocinza'>"+
+                        "<b><center><big>"+dados[e].veiculo+"</big></center></b>"+
+                        "<b>Entrada: </b>"+dados[e].dataEntrada+"<br>"+
+                        "<b>Tipo: </b>"+dados[e].tipo+
+                    "</div></div>";
+                }
+
+                html+="</div>";
+
+                $("#estadias").html(html);
             }
         });
 

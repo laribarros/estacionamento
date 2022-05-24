@@ -3,6 +3,11 @@ session_start();
 include('lib/dados.php');
 include("lib/verificaSessao.php");
 
+if($usu!='admin') {
+    echo "<script>alert('Você não tem permissão para essa ação!'); history.back();</script>";
+    exit();
+}
+
 //HEAD
 $title = "Clientes | ".TITULO;
 $menumarcado = 2;	

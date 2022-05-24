@@ -1,5 +1,5 @@
 <?
-if($_SERVER['HTTP_HOST']=='localhost' || $_SERVER['HTTP_HOST']=='www.localhost')
+if($_SERVER['HTTP_HOST']=='localhost')
 {
     DEFINE('SITE_URL','http://www.localhost/automac/estacionamento/');
 }

@@ -12,13 +12,13 @@
         </a>
     </div>
 
-    <div class="col-md-12 col-3 item <?=$menumarcado==2?'marcado':''?>" title="Clientes">
-        <a href="<?=SITE_URL?>clientes.php">
-            <i class="bi bi-card-heading"></i>
-        </a>
-    </div>
-
     <? if($usu=='admin') { ?>
+        <div class="col-md-12 col-3 item <?=$menumarcado==2?'marcado':''?>" title="Clientes">
+            <a href="<?=SITE_URL?>clientes.php">
+                <i class="bi bi-card-heading"></i>
+            </a>
+        </div>
+
         <div class="col-md-12 col-3 item <?=$menumarcado==6?'marcado':''?>" title="Criar Usuário">
             <a href="<?=SITE_URL?>usuario.php">
                 <i class="bi bi-person-plus-fill"></i>

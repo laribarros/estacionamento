@@ -3,6 +3,11 @@ session_start();
 include('lib/dados.php');
 include("lib/verificaSessao.php");
 
+if($usu!='admin') {
+    echo "<script>alert('Você não tem permissão para essa ação!'); history.back();</script>";
+    exit();
+}
+
 $cpfCnpj = isset($_REQUEST['cpfCnpj'])?$_REQUEST['cpfCnpj']:0;
 
 //HEAD
