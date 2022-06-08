@@ -24,6 +24,12 @@
                 <i class="bi bi-person-plus-fill"></i>
             </a>
         </div>
+
+        <div class="col-md-12 col-3 item <?=$menumarcado==7?'marcado':''?>" title="Formas de pagamento">
+            <a href="<?=SITE_URL?>formaspagamento.php">
+                <i class="bi bi-cash-coin"></i>
+            </a>
+        </div>
     <? } ?>
 
     <div class="col-md-12 col-3 item" title="Sair">

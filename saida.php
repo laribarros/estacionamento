@@ -103,7 +103,7 @@ $menumarcado = 5;
                         "placaVeiculo": $("#placa").val()
                       }), 
                       success : function(result) { 
-                        console.log(result);
+                        //console.log(result);
 
                         if(result.status==200) {
                             if(result.data==null) {
@@ -111,9 +111,28 @@ $menumarcado = 5;
                                 location.reload();
                             } else {
                                 if(result.data.valor==0) {
-                                    $("#pagamento").html("<div class='fundocinza espaco'><center><b>Data de entrada:</b> "+result.data.dataEntradaVeiculo+"<br><b>Data de saída: </b>"+result.data.dataSaidaVeiculo+"<br><b>Tempo de permanência: </b>"+result.data.tempoConsumo+"<br><b>MENSALISTA: </b>"+result.data.proprietario+"<br><button class='add' style='float: none; margin-top: 10px;'' onclick='pago(\""+result.data.codigoCobranca+"\")'>OK</button></center></div>");
+                                    $("#pagamento").html("<div class='fundocinza espaco'><center><b>Data de entrada:</b> "+result.data.dataEntradaVeiculo+"<br><b>Data de saída: </b>"+result.data.dataSaidaVeiculo+"<br><b>Tempo de permanência: </b>"+result.data.tempoConsumo+"<br><b>MENSALISTA: </b>"+result.data.proprietario+"<br><button class='add' style='float: none; margin-top: 10px;'' onclick='pago(\""+result.data.codigoCobranca+"\", \"\", \"\")'>OK</button></center></div>");
                                 } else {
-                                    $("#pagamento").html("<div class='fundocinza espaco'><center><b>Data de entrada:</b> "+result.data.dataEntradaVeiculo+"<br><b>Data de saída: </b>"+result.data.dataSaidaVeiculo+"<br><b>Tempo de permanência: </b>"+result.data.tempoConsumo+"<br><b>Valor: </b>R$ "+result.data.valor.toFixed(2)+"<br><button class='add' style='float: none; margin-top: 10px;'' onclick='pago(\""+result.data.codigoCobranca+"\")'>PAGO</button></center></div>");
+                                    var html = "<div class='fundocinza espaco'><center><b>Data de entrada:</b> "+result.data.dataEntradaVeiculo+"<br><b>Data de saída: </b>"+result.data.dataSaidaVeiculo+"<br><b>Tempo de permanência: </b>"+result.data.tempoConsumo+"<br><b>Valor: </b>R$ "+result.data.valor.toFixed(2)+"<br><div class='row'>";
+
+
+                                    $.ajax({   
+                                        url: '<?=API_URL?>FormaPagamento/listar',  
+                                        method: "GET",  
+                                        success: function(resultpagamento) {
+                                            html += "<br><div class='col-12'>";
+                                            var dados = resultpagamento.data; //console.log(dados);
+
+                                            for(var e in dados) {
+                                                //console.log(dados[e]);
+                                                html += "<button class='add' style='float: none; margin-top: 10px; margin-right: 10px;' onclick='pago(\""+result.data.codigoCobranca+"\", \""+dados[e].id+"\", \""+result.data.valor+"\")'>"+dados[e].nome+"</button>";
+                                            } 
+
+                                            html += "</div></center></div>";
+
+                                            $("#pagamento").html(html);
+                                        }
+                                    });
                                 }
                             }
                         } else {
@@ -145,23 +164,33 @@ $menumarcado = 5;
             }
         });
 
-        function pago(codigoCobranca) {
-            $.ajax({   
-              url: '<?=API_URL?>Cobranca/pagamentoCobranca',  
-              method: "PUT",
-              headers: {          
-                "Content-Type": "application/json"   
-              }, 
-              "data": JSON.stringify({
-                "codigoCobranca": codigoCobranca.replace(/\s/g, '')
-              }), 
-              success : function(result) { 
-                alert(result.message);
-                if(result.status==200) {
-                    location.reload();
-                }
-              }
-            });
+        function pago(codigoCobranca, formapagamento, valor) {
+            if(formapagamento == '') {
+                location.reload();
+            } else {
+                $.ajax({   
+                  url: '<?=API_URL?>Cobranca/pagamentoCobranca',  
+                  method: "PUT",
+                  headers: {          
+                    "Content-Type": "application/json"   
+                  }, 
+                  "data": JSON.stringify({
+                    "codigoCobranca": codigoCobranca.replace(/\s/g, ''),
+                    "pagamentos": [
+                        {
+                          "formaPagamentoId": formapagamento,
+                          "valor": valor
+                        }
+                    ]
+                  }), 
+                  success : function(result) { 
+                    alert(result.message);
+                    if(result.status==200) {
+                        location.reload();
+                    }
+                  }
+                });
+            }
         }
     </script>
 </html>
